@@ -17,6 +17,7 @@ defmodule ChatWeb.RoomLive do
       topic: topic,
       username: username,
       messages: [],
+      user_list: [],
       temporary_assigns: [messages: []]
     )}
   end
@@ -40,7 +41,6 @@ defmodule ChatWeb.RoomLive do
 
   @impl true
   def handle_info(%{event: "presence_diff", payload: %{joins: joins, leaves: leaves}}, socket) do
-    Logger.info(joins: joins, leaves: leaves)
     join_messages =
       joins
       |> Map.keys
@@ -53,7 +53,11 @@ defmodule ChatWeb.RoomLive do
       |> Enum.map(fn username ->
         %{type: :system, uuid: UUID.uuid4, content: "#{username} left the chat!"}
       end)
-    {:noreply, assign(socket, messages: join_messages ++ leave_messages)}
+
+      user_list = ChatWeb.Presence.list(socket.assigns.topic)
+      |> Map.keys()
+
+    {:noreply, assign(socket, messages: join_messages ++ leave_messages, user_list: user_list)}
   end
 
   def display_message(%{type: :system, uuid: uuid, content: content}) do
