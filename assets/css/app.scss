@@ -2,6 +2,20 @@
 @import "./phoenix.css";
 @import "../node_modules/nprogress/nprogress.css";
 
+
+.chat-container {
+  display: flex;
+  justify-content: space-between;
+  height: 500px;
+}
+
+.chat-messages{
+  padding: s1em;
+  margin: -1em 1em 1em -1em;
+  border: 1px solid #cccc;
+  flex-grow: 1;
+}
+
 /* LiveView specific classes for your customizations */
 .invalid-feedback {
   color: #a94442;

@@ -43,8 +43,10 @@ defmodule Chat.MixProject do
       {:telemetry_poller, "~> 0.4"},
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
+      {:plug, "~> 1.10.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:mnemonic_slugs, "~> 0.0.3"}
+      {:mnemonic_slugs, "~> 0.0.3"},
+      {:uuid, "~> 1.1.8"}
     ]
   end
 
