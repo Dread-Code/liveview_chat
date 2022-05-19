@@ -45,14 +45,26 @@ defmodule ChatWeb.RoomLive do
       joins
       |> Map.keys
       |> Enum.map(fn username ->
-        %{uuid: UUID.uuid4, content: "#{username} joined!", username: "system"}
+        %{type: :system, uuid: UUID.uuid4, content: "#{username} joined!"}
       end)
 
     leave_messages = leaves
       |> Map.keys
       |> Enum.map(fn username ->
-        %{uuid: UUID.uuid4, content: "#{username} left the chat!", username: "system"}
+        %{type: :system, uuid: UUID.uuid4, content: "#{username} left the chat!"}
       end)
     {:noreply, assign(socket, messages: join_messages ++ leave_messages)}
+  end
+
+  def display_message(%{type: :system, uuid: uuid, content: content}) do
+    ~E"""
+    <p id="<%= uuid %>"><em><%= content %></p>
+    """
+  end
+
+  def display_message(%{uuid: uuid, content: content, username: username}) do
+    ~E"""
+    <p id="<%= uuid %>"><strong><%= username%>: </strong><%= content %></p>
+    """
   end
 end
