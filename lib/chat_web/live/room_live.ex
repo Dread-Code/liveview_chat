@@ -6,14 +6,17 @@ defmodule ChatWeb.RoomLive do
   def mount(%{"id" => room_id}, _session, socket) do
     topic = "room:" <> room_id
     username = MnemonicSlugs.generate_slug
-    if connected?(socket), do: ChatWeb.Endpoint.subscribe(topic)
+    if connected?(socket) do
+      ChatWeb.Endpoint.subscribe(topic)
+      ChatWeb.Presence.track(self, topic, username, %{})
+    end
 
     {:ok,
      assign(socket,
       room_id: room_id,
       topic: topic,
       username: username,
-      messages: [%{uuid: UUID.uuid4(), content: " #{username} Hello Twitch!", username: "system"}],
+      messages: [],
       temporary_assigns: [messages: []]
     )}
   end
@@ -33,5 +36,23 @@ defmodule ChatWeb.RoomLive do
   @impl true
   def handle_info(%{event: "new-message", payload: message}, socket) do
     {:noreply, assign(socket, messages: [message])}
+  end
+
+  @impl true
+  def handle_info(%{event: "presence_diff", payload: %{joins: joins, leaves: leaves}}, socket) do
+    Logger.info(joins: joins, leaves: leaves)
+    join_messages =
+      joins
+      |> Map.keys
+      |> Enum.map(fn username ->
+        %{uuid: UUID.uuid4, content: "#{username} joined!", username: "system"}
+      end)
+
+    leave_messages = leaves
+      |> Map.keys
+      |> Enum.map(fn username ->
+        %{uuid: UUID.uuid4, content: "#{username} left the chat!", username: "system"}
+      end)
+    {:noreply, assign(socket, messages: join_messages ++ leave_messages)}
   end
 end
